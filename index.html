@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Hossein AI Agent | دستیار هوشمند حسین</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8fafc; --panel: #ffffff; --panel-2: #f1f5f9; --border: #e2e8f0;
+      --text: #0f172a; --muted: #64748b; --primary: #4f46e5; --danger: #ef4444; --ok: #10b981; --warn: #f59e0b;
+    }
+    html.dark {
+      --bg: #020617; --panel: #0f172a; --panel-2: #1e293b; --border: #1e293b;
+      --text: #f1f5f9; --muted: #94a3b8; --primary: #6366f1;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text);
+      font-family: "Vazirmatn", "Inter", system-ui, sans-serif;
+    }
+    html[dir="ltr"] body { font-family: "Inter", "Vazirmatn", system-ui, sans-serif; }
+    .app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 10px 14px; background: var(--panel); border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14.5px; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(99,102,241,.15); color: var(--primary); font-weight: 600; }
+    .row { display: flex; align-items: center; gap: 6px; }
+    button, input, textarea, select { font-family: inherit; color: inherit; }
+    .btn {
+      border: 1px solid var(--border); background: var(--panel-2); padding: 7px 11px; border-radius: 10px;
+      font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 36px;
+    }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn-danger { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.35); color: var(--danger); }
+    .btn-ok { background: rgba(16,185,129,.15); border-color: rgba(16,185,129,.35); color: var(--ok); }
+    .tabs { display: flex; gap: 4px; padding: 6px 10px; background: var(--panel); border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .tab { padding: 7px 12px; border-radius: 9px; font-size: 12px; font-weight: 600; border: none; background: transparent; cursor: pointer; white-space: nowrap; color: var(--muted); }
+    .tab.active { background: rgba(99,102,241,.14); color: var(--primary); }
+    .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .view { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+    .view.active { display: flex; }
+    .banner { padding: 7px 12px; font-size: 11.5px; background: rgba(99,102,241,.08); border-bottom: 1px solid var(--border); color: var(--muted); }
+    .chat-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--panel-2); border-bottom: 1px solid var(--border); }
+    .chat-bar select { flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: 9px; padding: 6px 10px; font-size: 12px; min-width: 0; }
+    .messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .msg { max-width: 88%; padding: 11px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+    .msg.user { align-self: flex-end; background: var(--primary); color: #fff; }
+    .msg.assistant { align-self: flex-start; background: var(--panel); border: 1px solid var(--border); }
+    .msg.tool { align-self: stretch; max-width: 100%; background: var(--panel-2); border: 1px dashed var(--border); font-size: 12px; color: var(--muted); }
+    .msg-meta { font-size: 10px; opacity: .7; margin-top: 5px; }
+    .approval-box { margin: 0 12px 8px; padding: 12px; border-radius: 12px; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.4); font-size: 12.5px; }
+    .approval-box pre { background: var(--panel); padding: 8px; border-radius: 8px; overflow-x: auto; font-size: 11px; direction: ltr; text-align: left; max-height: 140px; }
+    .composer { display: flex; gap: 8px; padding: 10px 12px; background: var(--panel); border-top: 1px solid var(--border); }
+    .composer textarea { flex: 1; resize: none; background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; min-height: 44px; max-height: 130px; outline: none; }
+    .scroll-pad { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+    .field label { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .input { width: 100%; background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; font-size: 13px; outline: none; }
+    .code-area { width: 100%; min-height: 250px; font-family: ui-monospace, monospace; font-size: 12.5px; direction: ltr; text-align: left; }
+    .file-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { padding: 6px 10px; border-radius: 9px; font-size: 12px; cursor: pointer; background: var(--panel-2); border: 1px solid var(--border); direction: ltr; }
+    .chip.active { border-color: var(--primary); color: var(--primary); font-weight: 700; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 50; display: none; align-items: center; justify-content: center; padding: 14px; }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: 100%; max-width: 540px; max-height: 90dvh; overflow-y: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+    .preview-frame { width: 100%; height: 65dvh; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+    .status-pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+    .st-completed { background: rgba(16,185,129,.15); color: var(--ok); }
+    .st-failed { background: rgba(239,68,68,.15); color: var(--danger); }
+    .st-running { background: rgba(99,102,241,.15); color: var(--primary); }
+    .st-waiting { background: rgba(245,158,11,.15); color: var(--warn); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <span>🤖</span>
+      <span id="txtTitle">دستیار هوش مصنوعی حسین</span>
+      <span class="badge" id="engineBadge">Auto Router</span>
+    </div>
+    <div class="row">
+      <button class="btn" id="btnLang" type="button">EN</button>
+      <button class="btn" id="btnTheme" type="button">☀️</button>
+      <button class="btn btn-primary" id="btnSettings" type="button">⚙️ <span id="txtSettingsBtn">تنظیمات موتور</span></button>
+    </div>
+  </header>
+
+  <div class="banner" id="statusBanner">
+    حالت خودکار: در صورت نبود کلید API، اگر مرورگر WebGPU داشته باشد مدل رایگان را مستقیم روی دستگاه اجرا می‌کند؛ وگرنه بین سرویس‌دهنده‌های تعریف‌شده مسیریابی خودکار انجام می‌دهد.
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="chat" id="tabChat">💬 گفتگو و ایجنت</button>
+    <button class="tab" data-tab="tasks" id="tabTasks">📋 تسک‌ها و لاگ</button>
+    <button class="tab" data-tab="workspace" id="tabWorkspace">📁 فضای کار و کد</button>
+    <button class="tab" data-tab="memory" id="tabMemory">🧠 حافظه</button>
+  </nav>
+
+  <main class="main">
+    <section class="view active" id="view-chat">
+      <div class="chat-bar">
+        <select id="convoSelect"></select>
+        <button class="btn" id="btnNewConvo" type="button">+ جدید</button>
+        <button class="btn btn-danger" id="btnDelConvo" type="button">🗑️</button>
+      </div>
+      <div class="messages" id="messagesBox"></div>
+      <div class="approval-box" id="approvalBox" style="display:none">
+        <div style="font-weight:700;margin-bottom:6px" id="approvalTitle">تایید اجرای ابزار:</div>
+        <pre id="approvalPayload"></pre>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-ok" id="btnApprove" type="button">✅ تایید و اجرا</button>
+          <button class="btn btn-danger" id="btnReject" type="button">❌ لغو</button>
+        </div>
+      </div>
+      <form class="composer" id="chatForm">
+        <textarea id="chatInput" placeholder="دستور خود را بنویسید... (مثلاً: در ویکی‌پدیا درباره تاریخچه اینترنت جستجو کن و یک گزارش HTML بساز)"></textarea>
+        <button class="btn btn-primary" id="btnSend" type="submit">ارسال</button>
+        <button class="btn btn-danger" id="btnStop" type="button" style="display:none">توقف</button>
+      </form>
+    </section>
+
+    <section class="view" id="view-tasks"><div class="scroll-pad" id="tasksContainer"></div></section>
+
+    <section class="view" id="view-workspace">
+      <div class="scroll-pad">
+        <div class="card">
+          <div class="row" style="flex-wrap:wrap;margin-bottom:10px">
+            <input class="input" id="newFileName" style="flex:1;min-width:150px;direction:ltr" placeholder="index.html" />
+            <button class="btn btn-primary" id="btnCreateFile" type="button">+ ساخت فایل</button>
+          </div>
+          <div class="file-chips" id="fileChips"></div>
+        </div>
+        <div class="card" id="editorCard" style="display:none">
+          <div class="row" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:8px">
+            <strong id="activeFileName" style="direction:ltr"></strong>
+            <div class="row" style="flex-wrap:wrap">
+              <button class="btn btn-ok" id="btnSaveFile" type="button">💾 ذخیره</button>
+              <button class="btn" id="btnPreviewHtml" type="button">👁️ پیش‌نمایش</button>
+              <button class="btn" id="btnDownloadFile" type="button">⬇️ دانلود</button>
+              <button class="btn btn-danger" id="btnDeleteFile" type="button">🗑️</button>
+            </div>
+          </div>
+          <textarea class="input code-area" id="fileEditor"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-memory">
+      <div class="scroll-pad">
+        <div class="card">
+          <div class="row">
+            <input class="input" id="memoryInput" placeholder="یک نکته مهم برای حافظه ایجنت اضافه کنید..." />
+            <button class="btn btn-primary" id="btnAddMemory" type="button">ذخیره</button>
+          </div>
+        </div>
+        <div id="memoryList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="settingsModal">
+  <div class="modal">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <strong id="txtCfgTitle">تنظیمات مسیریاب هوشمند (Auto Router)</strong>
+      <button class="btn" id="btnCloseSettings" type="button">✕</button>
+    </div>
+
+    <div class="field">
+      <label id="lblMode">حالت انتخاب موتور هوش مصنوعی</label>
+      <select class="input" id="cfgMode">
+        <option value="auto">خودکار (اول استخر ابری؛ در نبود کلید: WebGPU بدون سرور)</option>
+        <option value="webllm">فقط بدون سرور داخل مرورگر (WebGPU / WebLLM - بدون کلید)</option>
+        <option value="cloud">فقط سرویس‌دهنده‌های ابری (OpenAI-Compatible)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label id="lblWebLLM">مدل بدون سرور مرورگر (WebLLM - دانلود یک‌باره در کش)</label>
+      <select class="input" id="cfgWebLLMModel" style="direction:ltr">
+        <option value="Qwen3-0.6B-q4f16_1-MLC">Qwen3-0.6B-q4f16_1-MLC (~335MB - سبک برای موبایل)</option>
+        <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama-3.2-1B-Instruct-q4f16_1-MLC (~695MB)</option>
+        <option value="gemma-2-2b-it-q4f16_1-MLC">gemma-2-2b-it-q4f16_1-MLC (~1.4GB)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label id="lblPool">لیست سرویس‌دهنده‌های ابری برای Failover خودکار (JSON Array - اختیاری)</label>
+      <textarea class="input code-area" id="cfgProviders" style="min-height:110px"></textarea>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:14px;cursor:pointer">
+      <input type="checkbox" id="cfgAutoApprove" />
+      <span id="lblAutoApprove">تایید خودکار ابزارهای امن (ویکی‌پدیا، گیت‌هاب، فایل، JS)</span>
+    </label>
+
+    <div class="row" style="justify-content:space-between;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnSaveCfg" type="button">💾 ذخیره تنظیمات</button>
+      <button class="btn" id="btnExportBackup" type="button">⬇️ خروجی بکاپ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="previewModal">
+  <div class="modal" style="max-width:900px">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <strong id="previewTitle">پیش‌نمایش زنده</strong>
+      <button class="btn" id="btnClosePreview" type="button">✕</button>
+    </div>
+    <iframe class="preview-frame" id="previewFrame" sandbox="allow-scripts"></iframe>
+  </div>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "hossein_ai_auto_web_v2";
+  const uid = () => (globalThis.crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36));
+
+  const I18N = {
+    fa: {
+      title: "دستیار هوش مصنوعی حسین",
+      settingsBtn: "تنظیمات موتور",
+      tabChat: "💬 گفتگو و ایجنت",
+      tabTasks: "📋 تسک‌ها و لاگ",
+      tabWorkspace: "📁 فضای کار و کد",
+      tabMemory: "🧠 حافظه",
+      newBtn: "+ جدید",
+      send: "ارسال",
+      stop: "توقف",
+      placeholder: "دستور خود را بنویسید... (مثلاً: در ویکی‌پدیا جستجو کن و یک صفحه HTML بساز)",
+      emptyChat: "آماده اجرا! می‌توانید از حالت خودکار بدون کلید (روی HTTPS با WebGPU) یا از استخر APIهای ابری در تنظیمات استفاده کنید.",
+      noTasks: "هنوز تسکی اجرا نشده است.",
+      noMemory: "حافظه خالی است.",
+      approvalTitle: "درخواست تایید برای اجرای ابزار:",
+      approve: "✅ تایید و اجرا",
+      reject: "❌ لغو",
+      saved: "ذخیره شد.",
+      previewOnlyHtml: "پیش‌نمایش زنده برای فایل‌های .html یا .svg است.",
+    },
+    en: {
+      title: "Hossein AI Agent",
+      settingsBtn: "Engine Config",
+      tabChat: "💬 Chat & Agent",
+      tabTasks: "📋 Tasks & Logs",
+      tabWorkspace: "📁 Workspace",
+      tabMemory: "🧠 Memory",
+      newBtn: "+ New",
+      send: "Send",
+      stop: "Stop",
+      placeholder: "Write a task... (e.g. Research on Wikipedia and build an HTML report)",
+      emptyChat: "Ready! Uses configured Cloud API pool automatically, or zero-key in-browser WebGPU AI on HTTPS.",
+      noTasks: "No tasks executed yet.",
+      noMemory: "Memory is empty.",
+      approvalTitle: "Approval required before running tool:",
+      approve: "✅ Approve & Run",
+      reject: "❌ Reject",
+      saved: "Saved.",
+      previewOnlyHtml: "Live preview works on .html or .svg files.",
+    }
+  };
+
+  function defaultState() {
+    const id = uid();
+    return {
+      lang: "fa",
+      theme: "dark",
+      config: {
+        mode: "auto",
+        webllmModel: "Qwen3-0.6B-q4f16_1-MLC",
+        providers: [
+          { name: "OpenRouter", endpoint: "https://openrouter.ai/api/v1", model: "openai/gpt-4o-mini", apiKey: "" },
+          { name: "Groq", endpoint: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile", apiKey: "" }
+        ],
+        autoApprove: false
+      },
+      activeConvoId: id,
+      conversations: [{ id, title: "گفتگوی اول", updatedAt: Date.now(), messages: [] }],
+      files: { "README.md": "# Hossein AI Workspace\n" },
+      activeFile: "README.md",
+      memories: [],
+      tasks: []
+    };
+  }
+
+  let state = (() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? { ...defaultState(), ...JSON.parse(raw) } : defaultState();
+    } catch { return defaultState(); }
+  })();
+
+  let abortCtrl = null;
+  let pendingApprovalResolver = null;
+  let webllmEngine = null;
+  let webllmLoadedModel = null;
+
+  const $ = (id) => document.getElementById(id);
+  const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function setBanner(txt) { $("statusBanner").textContent = txt; }
+
+  function applyThemeAndLang() {
+    const t = I18N[state.lang];
+    document.documentElement.dir = state.lang === "fa" ? "rtl" : "ltr";
+    document.documentElement.lang = state.lang;
+    document.documentElement.classList.toggle("dark", state.theme === "dark");
+    $("btnLang").textContent = state.lang === "fa" ? "EN" : "FA";
+    $("btnTheme").textContent = state.theme === "dark" ? "☀️" : "🌙";
+    $("txtTitle").textContent = t.title;
+    $("txtSettingsBtn").textContent = t.settingsBtn;
+    $("tabChat").textContent = t.tabChat;
+    $("tabTasks").textContent = t.tabTasks;
+    $("tabWorkspace").textContent = t.tabWorkspace;
+    $("tabMemory").textContent = t.tabMemory;
+    $("btnNewConvo").textContent = t.newBtn;
+    $("btnSend").textContent = t.send;
+    $("btnStop").textContent = t.stop;
+    $("chatInput").placeholder = t.placeholder;
+    $("approvalTitle").textContent = t.approvalTitle;
+    $("btnApprove").textContent = t.approve;
+    $("btnReject").textContent = t.reject;
+  }
+
+  function getActiveConvo() {
+    let c = state.conversations.find((x) => x.id === state.activeConvoId);
+    if (!c) {
+      if (!state.conversations.length) {
+        c = { id: uid(), title: state.lang === "fa" ? "گفتگوی جدید" : "New Chat", updatedAt: Date.now(), messages: [] };
+        state.conversations.push(c);
+      } else c = state.conversations[0];
+      state.activeConvoId = c.id;
+    }
+    return c;
+  }
+
+  function renderConversations() {
+    const sel = $("convoSelect");
+    sel.innerHTML = state.conversations.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.title)}</option>`).join("");
+    sel.value = getActiveConvo().id;
+  }
+
+  function renderMessages() {
+    const box = $("messagesBox");
+    const convo = getActiveConvo();
+    if (!convo.messages.length) {
+      box.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);font-size:13px">${escapeHtml(I18N[state.lang].emptyChat)}</div>`;
+      return;
+    }
+    box.innerHTML = convo.messages.map((m) => `
+      <div class="msg ${escapeHtml(m.role)}">
+        <div>${escapeHtml(m.content)}</div>
+        ${m.meta ? `<div class="msg-meta">${escapeHtml(m.meta)}</div>` : ""}
+      </div>
+    `).join("");
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function renderTasks() {
+    const box = $("tasksContainer");
+    if (!state.tasks.length) {
+      box.innerHTML = `<div class="card" style="color:var(--muted);font-size:13px">${escapeHtml(I18N[state.lang].noTasks)}</div>`;
+      return;
+    }
+    box.innerHTML = state.tasks.slice().reverse().map((tk) => `
+      <div class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:6px">
+          <strong style="font-size:13px">${escapeHtml(tk.title)}</strong>
+          <span class="status-pill st-${escapeHtml(tk.status)}">${escapeHtml(tk.status)}</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);line-height:1.6;direction:ltr;text-align:left">
+          ${tk.logs.map((l) => `<div>• ${escapeHtml(l)}</div>`).join("")}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function renderWorkspace() {
+    const names = Object.keys(state.files);
+    $("fileChips").innerHTML = names.map((n) => `
+      <button type="button" class="chip ${state.activeFile === n ? "active" : ""}" data-file="${escapeHtml(n)}">${escapeHtml(n)}</button>
+    `).join("");
+    document.querySelectorAll(".chip[data-file]").forEach((el) => {
+      el.onclick = () => { state.activeFile = el.getAttribute("data-file"); save(); renderWorkspace(); };
+    });
+    if (state.activeFile && state.files[state.activeFile] !== undefined) {
+      $("editorCard").style.display = "block";
+      $("activeFileName").textContent = state.activeFile;
+      $("fileEditor").value = state.files[state.activeFile];
+    } else $("editorCard").style.display = "none";
+  }
+
+  function renderMemory() {
+    const box = $("memoryList");
+    if (!state.memories.length) {
+      box.innerHTML = `<div class="card" style="color:var(--muted);font-size:13px">${escapeHtml(I18N[state.lang].noMemory)}</div>`;
+      return;
+    }
+    box.innerHTML = state.memories.map((m) => `
+      <div class="card row" style="justify-content:space-between">
+        <span style="font-size:13px">${escapeHtml(m.text)}</span>
+        <button class="btn btn-danger" type="button" data-del-mem="${escapeHtml(m.id)}">🗑️</button>
+      </div>
+    `).join("");
+    document.querySelectorAll("[data-del-mem]").forEach((btn) => {
+      btn.onclick = () => { state.memories = state.memories.filter((x) => x.id !== btn.getAttribute("data-del-mem")); save(); renderMemory(); };
+    });
+  }
+
+  function runSandboxedJS(code) {
+    return new Promise((resolve) => {
+      const workerSrc = `
+        self.fetch = undefined; self.XMLHttpRequest = undefined; self.WebSocket = undefined;
+        self.onmessage = (e) => {
+          const logs = [];
+          const console = { log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x) : String(x)).join(' ')) };
+          try {
+            const result = new Function('console', e.data)(console);
+            self.postMessage({ ok: true, result: result === undefined ? null : result, logs });
+          } catch (err) { self.postMessage({ ok: false, error: err.message || String(err), logs }); }
+        };`;
+      const url = URL.createObjectURL(new Blob([workerSrc], { type: "application/javascript" }));
+      const worker = new Worker(url);
+      const timer = setTimeout(() => { worker.terminate(); URL.revokeObjectURL(url); resolve({ ok: false, error: "5s timeout" }); }, 5000);
+      worker.onmessage = (e) => { clearTimeout(timer); worker.terminate(); URL.revokeObjectURL(url); resolve(e.data); };
+      worker.onerror = (e) => { clearTimeout(timer); worker.terminate(); URL.revokeObjectURL(url); resolve({ ok: false, error: e.message }); };
+      worker.postMessage(code);
+    });
+  }
+
+  async function requestApproval(toolName, args) {
+    if (state.config.autoApprove) return true;
+    $("approvalPayload").textContent = JSON.stringify({ tool: toolName, args }, null, 2);
+    $("approvalBox").style.display = "block";
+    return new Promise((resolve) => {
+      pendingApprovalResolver = (ok) => { $("approvalBox").style.display = "none"; pendingApprovalResolver = null; resolve(ok); };
+    });
+  }
+
+  async function executeTool(tool, args) {
+    switch (tool) {
+      case "wiki_search": {
+        const q = encodeURIComponent(String(args?.query || ""));
+        const lang = args?.lang === "en" ? "en" : "fa";
+        const r = await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${q}&utf8=&format=json&origin=*`);
+        const d = await r.json();
+        const items = (d?.query?.search || []).slice(0, 5).map((x) => ({
+          title: x.title,
+          snippet: x.snippet.replace(/<[^>]+>/g, ""),
+          url: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(x.title.replace(/ /g, "_"))}`
+        }));
+        return { lang, results: items };
+      }
+      case "github_search": {
+        const q = encodeURIComponent(String(args?.query || ""));
+        const r = await fetch(`https://api.github.com/search/repositories?q=${q}&per_page=5`);
+        const d = await r.json();
+        return {
+          repositories: (d.items || []).map((repo) => ({
+            name: repo.full_name, stars: repo.stargazers_count, description: repo.description, url: repo.html_url
+          }))
+        };
+      }
+      case "web_fetch": {
+        try {
+          const r = await fetch(String(args?.url || ""), { signal: AbortSignal.timeout(10000) });
+          return { status: r.status, content: (await r.text()).slice(0, 8000) };
+        } catch (err) {
+          return { error: `Browser CORS/Network error: ${err.message}` };
+        }
+      }
+      case "list_files": return { files: Object.keys(state.files) };
+      case "read_file": return (args?.path in state.files) ? { path: args.path, content: state.files[args.path] } : { error: "Not found" };
+      case "write_file": {
+        const p = String(args?.path || "").trim();
+        if (!p) return { error: "Missing path" };
+        state.files[p] = String(args?.content ?? "");
+        state.activeFile = p; save(); renderWorkspace();
+        return { saved: p, bytes: state.files[p].length };
+      }
+      case "delete_file": {
+        const p = String(args?.path || "");
+        if (!(p in state.files)) return { error: "Not found" };
+        delete state.files[p]; state.activeFile = Object.keys(state.files)[0] || ""; save(); renderWorkspace();
+        return { deleted: p };
+      }
+      case "run_js": return await runSandboxedJS(String(args?.code || ""));
+      case "save_memory": {
+        const txt = String(args?.text || "").trim();
+        if (!txt) return { error: "Empty" };
+        state.memories.push({ id: uid(), text: txt, createdAt: Date.now() });
+        save(); renderMemory();
+        return { saved_memory: txt };
+      }
+      default: return { error: `Unknown tool: ${tool}` };
+    }
+  }
+
+  async function callCloudProvider(p, messages) {
+    const ep = p.endpoint.trim().replace(/\/+$/, "");
+    const url = ep.endsWith("/chat/completions") ? ep : `${ep}/chat/completions`;
+    const headers = { "Content-Type": "application/json" };
+    if (p.apiKey?.trim()) headers["Authorization"] = `Bearer ${p.apiKey.trim()}`;
+    const res = await fetch(url, {
+      method: "POST", headers, signal: abortCtrl.signal,
+      body: JSON.stringify({ model: p.model, messages, temperature: 0.3, max_tokens: 2048 })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+    const content = data?.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Empty content");
+    return { content, source: `${p.name || ep} (${p.model})` };
+  }
+
+  async function callBrowserWebLLM(messages) {
+    if (location.protocol === "file:") {
+      throw new Error("برای اجرای مدل بدون سرور (WebGPU)، فایل باید روی آدرس https:// (مثل GitHub Pages) باز شود، یا در تنظیمات یک API Key وارد کنید.");
+    }
+    if (!navigator.gpu) {
+      throw new Error("مرورگر یا دستگاه شما از WebGPU پشتیبانی نمی‌کند. لطفاً در تنظیمات یک سرویس‌دهنده ابری (مثل OpenRouter یا Groq) وارد کنید.");
+    }
+    const modelId = state.config.webllmModel || "Qwen3-0.6B-q4f16_1-MLC";
+    if (!webllmEngine || webllmLoadedModel !== modelId) {
+      setBanner(`در حال بارگذاری مدل بدون سرور (${modelId}) داخل مرورگر...`);
+      const webllm = await import("https://esm.run/@mlc-ai/web-llm");
+      webllmEngine = await webllm.CreateMLCEngine(modelId, {
+        initProgressCallback: (p) => setBanner(`WebGPU: ${p.text}`)
+      });
+      webllmLoadedModel = modelId;
+    }
+    const reply = await webllmEngine.chat.completions.create({ messages, temperature: 0.3, max_tokens: 1024 });
+    return { content: reply.choices[0].message.content, source: `Browser WebGPU (${modelId})` };
+  }
+
+  async function routeAIRequest(messages, task) {
+    const configured = (state.config.providers || []).filter((p) => p.endpoint && p.model && (p.apiKey?.trim() || /localhost|127\.0\.0\.1/.test(p.endpoint)));
+    const errors = [];
+
+    if (state.config.mode !== "webllm" && configured.length > 0) {
+      for (const p of configured) {
+        try {
+          task.logs.push(`Trying cloud provider: ${p.name || p.endpoint}`);
+          renderTasks();
+          const out = await callCloudProvider(p, messages);
+          $("engineBadge").textContent = p.name || "Cloud";
+          return out;
+        } catch (err) {
+          errors.push(`${p.name || p.endpoint}: ${err.message}`);
+        }
+      }
+    }
+
+    if (state.config.mode === "cloud") {
+      throw new Error(errors.length ? errors.join(" | ") : "هیچ کلید API فعالی در تنظیمات وارد نشده است.");
+    }
+
+    task.logs.push("Falling back to zero-server Browser WebGPU AI...");
+    renderTasks();
+    $("engineBadge").textContent = "Browser WebGPU";
+    return await callBrowserWebLLM(messages);
+  }
+
+  function buildSystemPrompt() {
+    const mems = state.memories.map((m) => `- ${m.text}`).join("\n") || "(none)";
+    const files = Object.keys(state.files).join(", ") || "(none)";
+    return [
+      "You are Hossein AI Agent, an autonomous bilingual (Persian & English) assistant running in a zero-server Web Workspace.",
+      "Reply in the user's language. Never fabricate tool results.",
+      `Workspace files: ${files}\nMemory:\n${mems}`,
+      "Tools: wiki_search({query, lang}), github_search({query}), web_fetch({url}), list_files(), read_file({path}), write_file({path, content}), delete_file({path}), run_js({code}), save_memory({text}).",
+      "To run a tool, output ONLY a fenced ```tool JSON block:\n```tool\n{\"tool\":\"wiki_search\",\"args\":{\"query\":\"...\",\"lang\":\"fa\"}}\n```"
+    ].join("\n\n");
+  }
+
+  function extractToolBlock(text) {
+    const m = text.match(/```tool\s*([\s\S]*?)```/i);
+    if (!m) return null;
+    try { const p = JSON.parse(m[1].trim()); return p && typeof p.tool === "string" ? p : null; } catch { return null; }
+  }
+
+  async function handleSend(userText) {
+    const convo = getActiveConvo();
+    if (!convo.messages.length) convo.title = userText.slice(0, 45);
+    convo.messages.push({ id: uid(), role: "user", content: userText });
+    const task = { id: uid(), title: userText.slice(0, 60), status: "running", logs: [`Started ${new Date().toLocaleTimeString()}`] };
+    state.tasks.push(task);
+    save(); renderConversations(); renderMessages(); renderTasks();
+
+    abortCtrl = new AbortController();
+    $("btnSend").style.display = "none"; $("btnStop").style.display = "inline-flex";
+
+    try {
+      const history = convo.messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-16).map((m) => ({ role: m.role, content: m.content }));
+      for (let step = 1; step <= 8; step++) {
+        const { content: reply, source } = await routeAIRequest([{ role: "system", content: buildSystemPrompt() }, ...history], task);
+        const toolCall = extractToolBlock(reply);
+        if (!toolCall) {
+          convo.messages.push({ id: uid(), role: "assistant", content: reply, meta: source });
+          task.status = "completed"; task.logs.push(`Completed via ${source}`);
+          break;
+        }
+        task.status = "waiting"; task.logs.push(`Waiting approval: ${toolCall.tool}`); renderTasks();
+        if (!(await requestApproval(toolCall.tool, toolCall.args || {}))) {
+          convo.messages.push({ id: uid(), role: "tool", content: `⛔ Cancelled: ${toolCall.tool}` });
+          task.status = "failed"; break;
+        }
+        task.status = "running"; task.logs.push(`Running ${toolCall.tool}`); renderTasks();
+        const res = await executeTool(toolCall.tool, toolCall.args || {});
+        const resStr = JSON.stringify(res, null, 2);
+        convo.messages.push({ id: uid(), role: "tool", content: `🛠️ ${toolCall.tool}\n${resStr.slice(0, 1200)}` });
+        renderMessages();
+        history.push({ role: "assistant", content: reply });
+        history.push({ role: "user", content: `Tool "${toolCall.tool}" result:\n${resStr}` });
+      }
+    } catch (err) {
+      const msg = err.name === "AbortError" ? "Stopped by user." : err.message;
+      convo.messages.push({ id: uid(), role: "tool", content: `❌ ${msg}` });
+      task.status = "failed"; task.logs.push(`Error: ${msg}`);
+    } finally {
+      abortCtrl = null; $("btnSend").style.display = "inline-flex"; $("btnStop").style.display = "none";
+      save(); renderMessages(); renderTasks();
+    }
+  }
+
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.onclick = () => {
+      document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
+      document.querySelectorAll(".view").forEach((x) => x.classList.remove("active"));
+      tab.classList.add("active"); $(`view-${tab.dataset.tab}`).classList.add("active");
+    };
+  });
+
+  $("btnLang").onclick = () => { state.lang = state.lang === "fa" ? "en" : "fa"; save(); applyThemeAndLang(); renderMessages(); renderTasks(); renderMemory(); };
+  $("btnTheme").onclick = () => { state.theme = state.theme === "dark" ? "light" : "dark"; save(); applyThemeAndLang(); };
+  $("btnSettings").onclick = () => {
+    $("cfgMode").value = state.config.mode;
+    $("cfgWebLLMModel").value = state.config.webllmModel;
+    $("cfgProviders").value = JSON.stringify(state.config.providers, null, 2);
+    $("cfgAutoApprove").checked = !!state.config.autoApprove;
+    $("settingsModal").classList.add("open");
+  };
+  $("btnCloseSettings").onclick = () => $("settingsModal").classList.remove("open");
+  $("btnClosePreview").onclick = () => { $("previewModal").classList.remove("open"); $("previewFrame").srcdoc = ""; };
+  $("btnSaveCfg").onclick = () => {
+    try {
+      const parsed = JSON.parse($("cfgProviders").value);
+      if (!Array.isArray(parsed)) throw new Error("Providers must be JSON array");
+      state.config.mode = $("cfgMode").value;
+      state.config.webllmModel = $("cfgWebLLMModel").value;
+      state.config.providers = parsed;
+      state.config.autoApprove = $("cfgAutoApprove").checked;
+      save(); $("settingsModal").classList.remove("open");
+    } catch (e) { alert(e.message); }
+  };
+  $("btnExportBackup").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: "application/json" }));
+    a.download = "hossein-ai-backup.json"; a.click();
+  };
+
+  $("convoSelect").onchange = (e) => { state.activeConvoId = e.target.value; save(); renderMessages(); };
+  $("btnNewConvo").onclick = () => {
+    const c = { id: uid(), title: state.lang === "fa" ? "گفتگوی جدید" : "New Chat", updatedAt: Date.now(), messages: [] };
+    state.conversations.unshift(c); state.activeConvoId = c.id; save(); renderConversations(); renderMessages();
+  };
+  $("btnDelConvo").onclick = () => { state.conversations = state.conversations.filter((c) => c.id !== getActiveConvo().id); save(); renderConversations(); renderMessages(); };
+  $("chatForm").onsubmit = (e) => { e.preventDefault(); const t = $("chatInput").value.trim(); if (!t || abortCtrl) return; $("chatInput").value = ""; handleSend(t); };
+  $("chatInput").onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("chatForm").requestSubmit(); } };
+  $("btnStop").onclick = () => abortCtrl?.abort();
+  $("btnApprove").onclick = () => pendingApprovalResolver?.(true);
+  $("btnReject").onclick = () => pendingApprovalResolver?.(false);
+
+  $("btnCreateFile").onclick = () => { const n = $("newFileName").value.trim(); if (!n) return; if (!(n in state.files)) state.files[n] = ""; state.activeFile = n; $("newFileName").value = ""; save(); renderWorkspace(); };
+  $("btnSaveFile").onclick = () => { if (!state.activeFile) return; state.files[state.activeFile] = $("fileEditor").value; save(); alert(I18N[state.lang].saved); };
+  $("btnDeleteFile").onclick = () => { if (!state.activeFile) return; delete state.files[state.activeFile]; state.activeFile = Object.keys(state.files)[0] || ""; save(); renderWorkspace(); };
+  $("btnDownloadFile").onclick = () => {
+    if (!state.activeFile) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([$("fileEditor").value], { type: "text/plain;charset=utf-8" }));
+    a.download = state.activeFile.split("/").pop(); a.click();
+  };
+  $("btnPreviewHtml").onclick = () => {
+    if (!state.activeFile || !/\.(html?|svg)$/i.test(state.activeFile)) return alert(I18N[state.lang].previewOnlyHtml);
+    $("previewTitle").textContent = state.activeFile;
+    $("previewFrame").srcdoc = $("fileEditor").value;
+    $("previewModal").classList.add("open");
+  };
+  $("btnAddMemory").onclick = () => { const t = $("memoryInput").value.trim(); if (!t) return; state.memories.push({ id: uid(), text: t, createdAt: Date.now() }); $("memoryInput").value = ""; save(); renderMemory(); };
+
+  applyThemeAndLang(); renderConversations(); renderMessages(); renderTasks(); renderWorkspace(); renderMemory();
+})();
+</script>
+</body>
+</html>
